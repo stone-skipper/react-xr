@@ -1,5 +1,5 @@
 import { Canvas, useLoader } from '@react-three/fiber'
-import { Box, Environment, Plane, OrbitControls } from '@react-three/drei'
+import { Box, Environment, Plane, OrbitControls, Cylinder } from '@react-three/drei'
 import { Hands, XR, VRButton, Controllers, Interactive, RayGrab } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
 import { useSpring, animated } from '@react-spring/three'
@@ -40,6 +40,32 @@ export function Planes(props: ComponentProps<typeof Box>) {
 
   const [hover, setHover] = React.useState(false)
   const [color, setColor] = React.useState(0xffffff)
+  const [gap, setGap] = React.useState(1)
+
+  function InteractionCylinder(props: ComponentProps<typeof Cylinder>) {
+    // to use as a way to detect grab interaction
+    // const [hover, setHover] = React.useState(false)
+    // const [color, setColor] = React.useState(0x123456)
+
+    return (
+      <Interactive
+        onSelect={() => {
+          setColor((Math.random() * 0xffffff) | 0)
+          if (gap === 1) {
+            setGap(0.4)
+          } else {
+            setGap(1)
+          }
+        }}
+        onHover={() => setHover(true)}
+        onBlur={() => setHover(false)}
+      >
+        <Cylinder {...props} args={[1.5, 1.5, 5, 32]} scale={hover ? 1.5 : 1}>
+          <meshStandardMaterial wireframe={true} color={color} />
+        </Cylinder>
+      </Interactive>
+    )
+  }
   const planes = []
   const numberOfPlanes = 20
   const towardTop = 10
@@ -50,35 +76,42 @@ export function Planes(props: ComponentProps<typeof Box>) {
       for (let k = 2; k < maxRadius; k++) {
         const angle = (i / numberOfPlanes) * Math.PI * 2 // Angle for each plane
         const extraRotation = k % 2 === 1 ? Math.PI / numberOfPlanes : 0 // Extra rotation for odd layers based on radius size k
-        const x = Math.cos(angle + extraRotation) * k // X position
-        const z = Math.sin(angle + extraRotation) * k // Z position (assuming Y is up/down)
+        const x = Math.cos(angle + extraRotation) * k * gap // X position
+        const z = Math.sin(angle + extraRotation) * k * gap // Z position (assuming Y is up/down)
 
         // Select a random texture for each plane
         const texture = textures[Math.floor(Math.random() * textures.length)]
 
         // Add the plane to the array with position and rotation
         planes.push(
-          <Plane
-            key={i}
-            position={[x, j * 0.5, z]}
-            rotation={[0, -angle + Math.PI / 2, 0]} // Adjust the rotation to face the center
-            args={[getRandomInt(3, 5) * 0.1, getRandomInt(3, 5) * 0.1]} // Size of the plane
-          >
-            <meshStandardMaterial
-              // @ts-ignore
-              map={texture} // Apply the texture
-              wireframe={false}
-              transparent={true}
-              opacity={1 - (1 / (maxRadius - 2)) * k} // Set the opacity to 0.5
-              color={color}
-              side={THREE.DoubleSide}
-            />
-          </Plane>
+          <Interactive>
+            <Plane
+              key={i}
+              position={[x, j * 0.5, z]}
+              rotation={[0, -angle + Math.PI / 2, 0]} // Adjust the rotation to face the center
+              args={[getRandomInt(3, 5) * 0.1, getRandomInt(3, 5) * 0.1]} // Size of the plane
+            >
+              <meshStandardMaterial
+                // @ts-ignore
+                map={texture} // Apply the texture
+                wireframe={false}
+                transparent={true}
+                opacity={1 - (1 / (maxRadius - 2)) * k} // Set the opacity to 0.5
+                color={color}
+                side={THREE.DoubleSide}
+              />
+            </Plane>
+          </Interactive>
         )
       }
     }
   }
-  return <Interactive>{planes}</Interactive>
+  return (
+    <>
+      {planes}
+      <InteractionCylinder />
+    </>
+  )
 }
 
 export function Grab(props: ComponentProps<typeof Box>) {
@@ -91,12 +124,6 @@ export function Grab(props: ComponentProps<typeof Box>) {
 
   return (
     <Interactive>
-      <animated.mesh>
-        {/* <Box {...props} args={[0.4, 0.4, 0.4]}> */}
-        {/* <meshStandardMaterial color={color} /> */}
-        {/* </Box> */}
-      </animated.mesh>
-
       <RayGrab
         onSelectStart={() => {
           setCome(true)
