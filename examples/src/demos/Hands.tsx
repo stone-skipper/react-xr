@@ -32,9 +32,12 @@ export function Grab(props: ComponentProps<typeof Box>) {
   return (
     <Interactive>
       {/* @ts-ignore */}
-      <Box {...props} args={[0.4, 0.4, 0.4]} position={springs}>
-        {/* <meshStandardMaterial color={color} /> */}
-      </Box>
+      <animated.mesh position={springs.position}>
+        <Box {...props} args={[0.4, 0.4, 0.4]}>
+          {/* <meshStandardMaterial color={color} /> */}
+        </Box>
+      </animated.mesh>
+
       <RayGrab
         onSelectStart={() => {
           setCome(true)
