@@ -24,7 +24,23 @@ export default function () {
         <XR>
           <ambientLight intensity={0.5} />
           <pointLight position={[5, 5, 5]} />
-          <Controllers />
+          <Controllers
+            /** Optional material props to pass to controllers' ray indicators */
+            rayMaterial={{ color: 'blue' }}
+            /** Whether to hide controllers' rays on blur. Default is `false` */
+            hideRaysOnBlur={false}
+            /**
+             * Optional environment map to apply to controller models.
+             * Useful for make controllers look more realistic
+             * if you don't want to apply an env map globally on a scene
+             */
+            // envMap={Texture}
+            /**
+             * Optional environment map intensity to apply to controller models.
+             * Useful for tweaking the env map intensity if they look too bright or dark
+             */
+            envMapIntensity={1}
+          />
           <Button position={[0, 0.8, -1]} />
         </XR>
       </Canvas>

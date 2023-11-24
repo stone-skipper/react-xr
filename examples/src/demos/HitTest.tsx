@@ -9,7 +9,7 @@ export function HitTestExample(props: ComponentProps<typeof Box>) {
 
   useHitTest((hitMatrix) => {
     if (boxRef.current) {
-      hitMatrix.decompose(boxRef.current.position, boxRef.current.quaternion, boxRef.current.scale)
+      // hitMatrix.decompose(boxRef.current.position, boxRef.current.quaternion, boxRef.current.scale)
     }
   })
 
