@@ -1,6 +1,6 @@
-import { Canvas } from '@react-three/fiber'
-import { Box, Environment, Plane, Instances, Instance } from '@react-three/drei'
-import { Hands, XR, VRButton, Controllers, Interactive, RayGrab, RayGrabProps } from '@react-three/xr'
+import { Canvas, useLoader } from '@react-three/fiber'
+import { Box, Environment, Plane, OrbitControls } from '@react-three/drei'
+import { Hands, XR, VRButton, Controllers, Interactive, RayGrab } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
 import { useSpring, animated } from '@react-spring/three'
 import * as THREE from 'three' // Import THREE for constants
@@ -28,13 +28,22 @@ function getRandomInt(min = 0, max = 10) {
   return Math.floor(Math.random() * (max - min) + min) // The maximum is exclusive and the minimum is inclusive
 }
 
+const imageUrls = [
+  '/images/cat.jpg',
+  '/images/sky.jpg',
+  '/images/latte.png'
+  // ... add paths for all 10 images
+]
+
 export function Planes(props: ComponentProps<typeof Box>) {
+  const textures = useLoader(THREE.TextureLoader, imageUrls)
+
   const [hover, setHover] = React.useState(false)
   const [color, setColor] = React.useState(0xffffff)
   const planes = []
   const numberOfPlanes = 20
   const towardTop = 10
-  const maxRadius = 6
+  const maxRadius = 8
 
   for (let j = 0; j < towardTop; j++) {
     for (let i = 0; i < numberOfPlanes; i++) {
@@ -44,15 +53,20 @@ export function Planes(props: ComponentProps<typeof Box>) {
         const x = Math.cos(angle + extraRotation) * k // X position
         const z = Math.sin(angle + extraRotation) * k // Z position (assuming Y is up/down)
 
+        // Select a random texture for each plane
+        const texture = textures[Math.floor(Math.random() * textures.length)]
+
         // Add the plane to the array with position and rotation
         planes.push(
           <Plane
             key={i}
             position={[x, j * 0.5, z]}
-            rotation={[0, -angle + Math.PI / 2 + extraRotation, 0]} // Adjust the rotation to face the center
+            rotation={[0, -angle + Math.PI / 2, 0]} // Adjust the rotation to face the center
             args={[getRandomInt(3, 5) * 0.1, getRandomInt(3, 5) * 0.1]} // Size of the plane
           >
             <meshStandardMaterial
+              // @ts-ignore
+              map={texture} // Apply the texture
               wireframe={false}
               transparent={true}
               opacity={1 - (1 / (maxRadius - 2)) * k} // Set the opacity to 0.5
@@ -123,6 +137,7 @@ export default function () {
             <Button position={[-0.5, 0.8, 0]} />
           </RayGrab> */}
           <Planes />
+          <OrbitControls />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{ color: 'blue' }}

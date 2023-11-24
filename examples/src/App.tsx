@@ -7,7 +7,7 @@ import { Link, Redirect, Route, useRoute } from 'wouter'
 import * as demos from './demos'
 import { useErrorBoundary } from 'use-error-boundary'
 
-const DEFAULT_COMPONENT_NAME = 'Interactive'
+const DEFAULT_COMPONENT_NAME = 'Hands'
 const visibleComponents = Object.entries(demos).reduce(
   (acc, [name, item]) => ({ ...acc, [name]: item }),
   {} as Record<string, { Component: React.LazyExoticComponent<() => JSX.Element> }>
