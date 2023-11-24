@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
-import { Box } from '@react-three/drei'
-import { Hands, XR, VRButton, Controllers, Interactive, RayGrab } from '@react-three/xr'
+import { Box, Environment } from '@react-three/drei'
+import { Hands, XR, VRButton, Controllers, Interactive, RayGrab, RayGrabProps } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
 
 export function Button(props: ComponentProps<typeof Box>) {
@@ -8,10 +8,45 @@ export function Button(props: ComponentProps<typeof Box>) {
   const [color, setColor] = React.useState(0x123456)
 
   return (
-    <Interactive onSelect={() => setColor((Math.random() * 0xffffff) | 0)} onHover={() => setHover(true)} onBlur={() => setHover(false)}>
+    <Interactive
+      onSelect={() => setColor((Math.random() * 0xffffff) | 0)}
+      // onHover={() => setHover(true)}
+      onBlur={() => setHover(false)}
+    >
       <Box {...props} args={[0.4, 0.1, 0.1]} scale={hover ? 1.5 : 1}>
         <meshStandardMaterial color={color} />
       </Box>
+    </Interactive>
+  )
+}
+
+export function Grab(props: ComponentProps<typeof Box>) {
+  const [hover, setHover] = React.useState(false)
+  const [color, setColor] = React.useState(0x123456)
+  const [come, setCome] = React.useState(false)
+
+  React.useEffect(() => {}, [come])
+
+  return (
+    <Interactive>
+      <Box {...props} args={[0.4, 0.4, 0.4]} position={come === true ? [0, 0.8, 0] : [0, 0.8, -2]}>
+        {/* <meshStandardMaterial color={color} /> */}
+      </Box>
+      <RayGrab
+        onSelectStart={() => {
+          setCome(true)
+        }}
+        onSelect={() => {
+          setCome(true)
+        }}
+        onSelectEnd={() => {
+          setCome(false)
+        }}
+      >
+        <Box {...props} args={[2, 2, 0.1]} position={[0, 0.8, -1]}>
+          <meshStandardMaterial wireframe={true} />
+        </Box>
+      </RayGrab>
     </Interactive>
   )
 }
@@ -22,15 +57,20 @@ export default function () {
       <VRButton onError={(e) => console.error(e)} />
       <Canvas>
         <XR>
+          <Environment preset="forest" background blur={0.2} />
+
           <ambientLight intensity={0.5} />
           <pointLight position={[5, 5, 5]} />
           <Hands
           // modelLeft="/hand-left.gltf"
           // modelRight="/hand-right.gltf"
           />
-          <RayGrab>
-            <Button position={[0, 0.8, 1]} />
+          {/* <RayGrab>
+            <Button position={[0.5, 0.8, 0]} />
           </RayGrab>
+          <RayGrab>
+            <Button position={[-0.5, 0.8, 0]} />
+          </RayGrab> */}
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{ color: 'blue' }}
@@ -49,7 +89,8 @@ export default function () {
             envMapIntensity={1}
           />
 
-          <Button position={[0, 0.8, -1]} />
+          <Grab />
+          {/* <Button position={[0, 0.8, -1]} /> */}
         </XR>
       </Canvas>
     </>
