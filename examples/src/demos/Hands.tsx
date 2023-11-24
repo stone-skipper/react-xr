@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import { Box, Environment } from '@react-three/drei'
 import { Hands, XR, VRButton, Controllers, Interactive, RayGrab, RayGrabProps } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
+import { useSpring, animated } from '@react-spring/three'
 
 export function Button(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
@@ -24,12 +25,14 @@ export function Grab(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
   const [color, setColor] = React.useState(0x123456)
   const [come, setCome] = React.useState(false)
+  const springs = useSpring({ position: come === true ? [0, 0.8, 0.2] : [0, 0.8, -2] })
 
   React.useEffect(() => {}, [come])
 
   return (
     <Interactive>
-      <Box {...props} args={[0.4, 0.4, 0.4]} position={come === true ? [0, 0.8, 0] : [0, 0.8, -2]}>
+      {/* @ts-ignore */}
+      <Box {...props} args={[0.4, 0.4, 0.4]} position={springs}>
         {/* <meshStandardMaterial color={color} /> */}
       </Box>
       <RayGrab
