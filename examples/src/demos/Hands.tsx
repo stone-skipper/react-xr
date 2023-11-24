@@ -43,10 +43,6 @@ export function Planes(props: ComponentProps<typeof Box>) {
   const [gap, setGap] = React.useState(1)
 
   function InteractionCylinder(props: ComponentProps<typeof Cylinder>) {
-    // to use as a way to detect grab interaction
-    // const [hover, setHover] = React.useState(false)
-    // const [color, setColor] = React.useState(0x123456)
-
     return (
       <Interactive
         onSelect={() => {
@@ -109,7 +105,7 @@ export function Planes(props: ComponentProps<typeof Box>) {
   return (
     <>
       {planes}
-      <InteractionCylinder />
+      {/* <InteractionCylinder /> */}
     </>
   )
 }
