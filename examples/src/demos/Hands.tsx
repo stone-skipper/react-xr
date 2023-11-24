@@ -3,6 +3,7 @@ import { Box, Environment, Plane, Instances, Instance } from '@react-three/drei'
 import { Hands, XR, VRButton, Controllers, Interactive, RayGrab, RayGrabProps } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
 import { useSpring, animated } from '@react-spring/three'
+import * as THREE from 'three' // Import THREE for constants
 
 export function Button(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
@@ -21,31 +22,43 @@ export function Button(props: ComponentProps<typeof Box>) {
   )
 }
 
+function getRandomInt(min = 0, max = 10) {
+  min = Math.ceil(min)
+  max = Math.floor(max)
+  return Math.floor(Math.random() * (max - min) + min) // The maximum is exclusive and the minimum is inclusive
+}
+
 export function Planes(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
-  const [color, setColor] = React.useState(0x123456)
+  const [color, setColor] = React.useState(0xffffff)
   const planes = []
   const numberOfPlanes = 20
-  const towardTop = 20
-  const maxRadius = 20
-  const radius = 2 // Radius of the circle on which planes will be arranged
+  const towardTop = 10
+  const maxRadius = 6
 
   for (let j = 0; j < towardTop; j++) {
     for (let i = 0; i < numberOfPlanes; i++) {
       for (let k = 2; k < maxRadius; k++) {
         const angle = (i / numberOfPlanes) * Math.PI * 2 // Angle for each plane
-        const x = Math.cos(angle) * k // X position
-        const z = Math.sin(angle) * k // Z position (assuming Y is up/down)
+        const extraRotation = k % 2 === 1 ? Math.PI / numberOfPlanes : 0 // Extra rotation for odd layers based on radius size k
+        const x = Math.cos(angle + extraRotation) * k // X position
+        const z = Math.sin(angle + extraRotation) * k // Z position (assuming Y is up/down)
 
         // Add the plane to the array with position and rotation
         planes.push(
           <Plane
             key={i}
             position={[x, j * 0.5, z]}
-            rotation={[0, -angle + Math.PI / 2, 0]} // Adjust the rotation to face the center
-            args={[0.4, 0.3]} // Size of the plane
+            rotation={[0, -angle + Math.PI / 2 + extraRotation, 0]} // Adjust the rotation to face the center
+            args={[getRandomInt(3, 5) * 0.1, getRandomInt(3, 5) * 0.1]} // Size of the plane
           >
-            <meshStandardMaterial wireframe={true} />
+            <meshStandardMaterial
+              wireframe={false}
+              transparent={true}
+              opacity={1 - (1 / (maxRadius - 2)) * k} // Set the opacity to 0.5
+              color={color}
+              side={THREE.DoubleSide}
+            />
           </Plane>
         )
       }
