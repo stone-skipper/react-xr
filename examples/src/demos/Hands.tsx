@@ -1,5 +1,5 @@
 import { Canvas } from '@react-three/fiber'
-import { Box, Environment } from '@react-three/drei'
+import { Box, Environment, Plane, Instances, Instance } from '@react-three/drei'
 import { Hands, XR, VRButton, Controllers, Interactive, RayGrab, RayGrabProps } from '@react-three/xr'
 import React, { ComponentProps } from 'react'
 import { useSpring, animated } from '@react-spring/three'
@@ -21,6 +21,39 @@ export function Button(props: ComponentProps<typeof Box>) {
   )
 }
 
+export function Planes(props: ComponentProps<typeof Box>) {
+  const [hover, setHover] = React.useState(false)
+  const [color, setColor] = React.useState(0x123456)
+  const planes = []
+  const numberOfPlanes = 20
+  const towardTop = 20
+  const maxRadius = 20
+  const radius = 2 // Radius of the circle on which planes will be arranged
+
+  for (let j = 0; j < towardTop; j++) {
+    for (let i = 0; i < numberOfPlanes; i++) {
+      for (let k = 2; k < maxRadius; k++) {
+        const angle = (i / numberOfPlanes) * Math.PI * 2 // Angle for each plane
+        const x = Math.cos(angle) * k // X position
+        const z = Math.sin(angle) * k // Z position (assuming Y is up/down)
+
+        // Add the plane to the array with position and rotation
+        planes.push(
+          <Plane
+            key={i}
+            position={[x, j * 0.5, z]}
+            rotation={[0, -angle + Math.PI / 2, 0]} // Adjust the rotation to face the center
+            args={[0.4, 0.3]} // Size of the plane
+          >
+            <meshStandardMaterial wireframe={true} />
+          </Plane>
+        )
+      }
+    }
+  }
+  return <Interactive>{planes}</Interactive>
+}
+
 export function Grab(props: ComponentProps<typeof Box>) {
   const [hover, setHover] = React.useState(false)
   const [color, setColor] = React.useState(0x123456)
@@ -31,11 +64,10 @@ export function Grab(props: ComponentProps<typeof Box>) {
 
   return (
     <Interactive>
-      {/* @ts-ignore */}
-      <animated.mesh position={springs.position}>
-        <Box {...props} args={[0.4, 0.4, 0.4]}>
-          {/* <meshStandardMaterial color={color} /> */}
-        </Box>
+      <animated.mesh>
+        {/* <Box {...props} args={[0.4, 0.4, 0.4]}> */}
+        {/* <meshStandardMaterial color={color} /> */}
+        {/* </Box> */}
       </animated.mesh>
 
       <RayGrab
@@ -77,6 +109,7 @@ export default function () {
           <RayGrab>
             <Button position={[-0.5, 0.8, 0]} />
           </RayGrab> */}
+          <Planes />
           <Controllers
             /** Optional material props to pass to controllers' ray indicators */
             rayMaterial={{ color: 'blue' }}
@@ -95,7 +128,7 @@ export default function () {
             envMapIntensity={1}
           />
 
-          <Grab />
+          {/* <Grab /> */}
           {/* <Button position={[0, 0.8, -1]} /> */}
         </XR>
       </Canvas>
